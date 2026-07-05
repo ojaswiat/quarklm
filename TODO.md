@@ -1,0 +1,1 @@
+1. Learn about tiktoken and word2vec from YouTube. How they work?

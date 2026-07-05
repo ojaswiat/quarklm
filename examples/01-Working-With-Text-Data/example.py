@@ -6,9 +6,9 @@ from gensim.models import Word2Vec
 
 # Define constants for the script
 DEBUG = False # Set the default value of DEBUG to False. It can be overridden by command-line arguments.
-TRAINING_FILE_PATH = os.path.join(os.path.dirname(__file__), "data", "the_verdict.txt") # Specify the path to the training file
-TIKTOKEN_MODEL_NAME = "cl100k_base"  # Specify the tiktoken model name
-MAX_VECTORIZER_EPOCHS = 1 # Set the number of epochs for the Word2Vec model training. A low value is used for simplicity and speed in this example.
+TRAINING_FILE_PATH = os.path.join(os.path.dirname(__file__), "data", "the_verdict.txt") # Specify the path to the training file.
+TIKTOKEN_MODEL_NAME = "cl100k_base"  # Specify the tiktoken model name.
+MAX_VECTORIZER_EPOCHS = 1 # Set the number of epochs for the Word2Vec model training. A low value is used for simplicity and speed in this example. Higher values yield better embeddings but will take longer to train.
 
 # Parse the command-line arguments to check if debug mode is enabled
 def parse_args():
