@@ -5,6 +5,7 @@ import tiktoken
 from gensim.models import Word2Vec
 
 # Define constants for the script
+SEPARATOR = "=" * 64 # Define a separator line for better readability in debug output.
 DEBUG = False # Set the default value of DEBUG to False. It can be overridden by command-line arguments.
 TRAINING_FILE_PATH = os.path.join(os.path.dirname(__file__), "data", "the_verdict.txt") # Specify the path to the training file.
 TIKTOKEN_MODEL_NAME = "cl100k_base"  # Specify the tiktoken model name.
@@ -36,19 +37,20 @@ def check_training_file_exists(file_path)->bool:
         FileNotFoundError: If the training file does not exist at the specified path.
     """
     if not os.path.exists(file_path):
-        print()
+        print(SEPARATOR)
         print("""
         1. Download the file from https://en.wikisource.org/wiki/The_Verdict
         2. Save it as 'the_verdict.txt' in the 'data' folder
         3. Ensure the 'data' folder is in the same directory as this script
         """)
+        print(SEPARATOR)
         raise FileNotFoundError(f"Training file not found at {file_path}. Please ensure the file exists.")
     else:
-        print()
+        print(SEPARATOR)
         print(f"The file contains the text of 'The Verdict' by Agatha Christie downloaded from: https://en.wikisource.org/wiki/The_Verdict")
         print(f"Training file found at {file_path}.")
         print(f"Proceeding with the tokenisation...")
-        print()
+        print(SEPARATOR)
         return True
 
 # Load the training data from the specified file path
@@ -62,11 +64,15 @@ def load_training_data(file_path)->str:
     returns:
         str: The content of the training file.
     """
-    
-    check_training_file_exists(file_path)
 
     with open(file_path, 'r', encoding='utf-8') as file:
         text = file.read()
+
+        print(f"Training data loaded from {file_path}.")
+        print(f"Length of training data: {len(text)} characters.")
+        print(f"First 500 characters of the training data:\n{text[:500]}")
+        print(SEPARATOR)
+
         return text
 
 # Tokenize the text into words using tiktoken
@@ -83,6 +89,12 @@ def tokenize_text(text:str)->list:
     tokenizer = tiktoken.get_encoding(TIKTOKEN_MODEL_NAME)
     token_ids = tokenizer.encode(text)
     tokens = [tokenizer.decode([token_id]) for token_id in token_ids]
+
+    if DEBUG:
+        print(f"Tokenization complete. Number of tokens: {len(tokens)}")
+        print(f"First 10 tokens: {', '.join(tokens[:10])}")
+        print(SEPARATOR)
+
     return tokens
 
 # Generate word embeddings using Word2Vec
@@ -110,13 +122,36 @@ def generate_word_embeddings(tokens:list)->Word2Vec:
         seed=42                         # For reproducible random initialization
     )
 
+    print(f"Word2Vec model trained with {len(model.wv)} unique tokens.")
+    print(f"Vector size: {model.vector_size}, Window size: {model.window}, Epochs: {model.epochs}")
+    print(SEPARATOR)
+
     return model
+
+# Generate a pipeline that runs the entire process: load data, tokenize, and generate embeddings
+def pipeline():
+    """
+    Run the entire pipeline: load training data, tokenize it, and generate word embeddings.
+    """
+
+    try:
+        check_training_file_exists(TRAINING_FILE_PATH)
+        loaded_text = load_training_data(TRAINING_FILE_PATH)
+        tokens = tokenize_text(loaded_text)
+        generate_word_embeddings(tokens)
+        print("Pipeline completed successfully!")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 # Main entry point of the script
 if __name__ == "__main__":
     parse_args()
     
+    print()
     if DEBUG:
         print("Debug mode is ON")
     else:
         print("Running in normal mode")
+
+    pipeline()
+    print()
